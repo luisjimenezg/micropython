@@ -1,0 +1,20 @@
+{
+    "deploy": [
+        "deploy.md"
+    ],
+    "docs": "",
+    "features": [
+        "BLE",
+        "Battery Charging",
+        "External Flash",
+        "USB-C"
+    ],
+    "images": [
+        "none.jpg"
+    ],
+    "mcu": "nrf52",
+    "product": "SuperMini NRF52840",
+    "thumbnail": "",
+    "url": "https://github.com/joric/nrfmicro/wiki/Alternatives#supermini-nrf52840",
+    "vendor": "Maker go"
+}
