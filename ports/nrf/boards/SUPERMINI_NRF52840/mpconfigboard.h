@@ -65,12 +65,5 @@
 
 #define HELP_TEXT_BOARD_LED         "1"
 
-// Enabling these VID/PID values require to include mpconfigboard.h into usb_descriptors.c.
-// But there is an open discussion on whether specific VID/PID values are wanted.
-// 1200BPS touch is not supported at the moment in the USB driver, but at least the flag is set.
-#define MICROPY_HW_USB_VID          (0x2886)
-#define MICROPY_HW_USB_PID          (0x0045)
-#define MICROPY_HW_USB_CDC_1200BPS_TOUCH (1)
-
 void SUPERMINI_board_early_init(void);
 void SUPERMINI_board_enter_bootloader(void);
