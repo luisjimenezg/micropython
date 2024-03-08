@@ -132,7 +132,7 @@ STATIC mp_obj_t mp_machine_adc_make_new(const mp_obj_type_t *type, size_t n_args
             .resistor_n = NRF_SAADC_RESISTOR_DISABLED,
             .gain       = NRF_SAADC_GAIN1_4,
             .reference  = NRF_SAADC_REFERENCE_VDD4,
-            .acq_time   = NRF_SAADC_ACQTIME_3US,
+            .acq_time   = NRF_SAADC_ACQTIME_15US,
             .mode       = NRF_SAADC_MODE_SINGLE_ENDED,
             .burst      = NRF_SAADC_BURST_DISABLED,
         },
@@ -152,7 +152,7 @@ int16_t machine_adc_value_read(machine_adc_obj_t * adc_obj) {
     nrf_adc_value_t value = 0;
 
     nrfx_adc_channel_t channel_config = {
-        .config.resolution = NRF_ADC_CONFIG_RES_8BIT,
+        .config.resolution = NRF_ADC_CONFIG_RES_10BIT,
         .config.input      = NRF_ADC_CONFIG_SCALING_INPUT_TWO_THIRDS,
         .config.reference  = NRF_ADC_CONFIG_REF_VBG,
         .config.input      = adc_obj->ain,
@@ -163,7 +163,7 @@ int16_t machine_adc_value_read(machine_adc_obj_t * adc_obj) {
 #else // NRF52
     nrf_saadc_value_t value = 0;
 
-    nrfx_saadc_simple_mode_set((1 << adc_obj->id), NRF_SAADC_RESOLUTION_8BIT, NRF_SAADC_INPUT_DISABLED, NULL);
+    nrfx_saadc_simple_mode_set((1 << adc_obj->id), NRF_SAADC_RESOLUTION_10BIT, NRF_SAADC_INPUT_DISABLED, NULL);
     nrfx_saadc_buffer_set(&value, 1);
     nrfx_saadc_mode_trigger();
 #endif
@@ -179,8 +179,8 @@ STATIC mp_int_t mp_machine_adc_read_u16(machine_adc_obj_t *self) {
         raw = 0;
     }
     #endif
-    // raw is an 8-bit value
-    return (raw << 8) | raw;
+    // raw is a 10-bit value
+    return raw << 6;
 }
 
 /// \method value()
