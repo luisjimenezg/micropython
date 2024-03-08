@@ -10,7 +10,7 @@ step 4 is needed. For the .hex version of the firmware file, steps
 
    `make BOARD=SUPERMINI_NRF52840 -j5`
 
-   in the directory build-SEEED_XIAO_NRF52-s140. The firmware file will have the
+   in the directory build-SUPERMINI_NRF52840-s140. The firmware file will have the
    name firmware.uf2.
 
 3. Create the .uf2 file if needed in the build directory with the command:
