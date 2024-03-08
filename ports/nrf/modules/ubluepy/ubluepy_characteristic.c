@@ -131,17 +131,10 @@ STATIC mp_obj_t char_write(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t 
     ubluepy_role_type_t role = self->p_service->p_periph->role;
 
     if (role == UBLUEPY_ROLE_PERIPHERAL) {
-        if (self->props & UBLUEPY_PROP_NOTIFY) {
-            ble_drv_attr_s_notify(self->p_service->p_periph->conn_handle,
-                                  self->handle,
-                                  bufinfo.len,
-                                  bufinfo.buf);
-        } else {
-            ble_drv_attr_s_write(self->p_service->p_periph->conn_handle,
-                                 self->handle,
-                                 bufinfo.len,
-                                 bufinfo.buf);
-        }
+        ble_drv_attr_s_write(self->p_service->p_periph->conn_handle,
+                             self->handle,
+                             bufinfo.len,
+                             bufinfo.buf);
     } else {
 #if MICROPY_PY_UBLUEPY_CENTRAL
         bool with_response = args[0].u_bool;
@@ -156,6 +149,48 @@ STATIC mp_obj_t char_write(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t 
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(ubluepy_characteristic_write_obj, 2, char_write);
+
+/// \method notify(data, [with_response=False])
+/// Notify Characteristic value.
+///
+STATIC mp_obj_t char_notify(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    ubluepy_characteristic_obj_t *self = MP_OBJ_TO_PTR(pos_args[0]);
+    mp_obj_t data                      = pos_args[1];
+
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_with_response, MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = false } },
+    };
+
+    // parse args
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args - 2, pos_args + 2, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(data, &bufinfo, MP_BUFFER_READ);
+
+    // figure out mode of the Peripheral
+    ubluepy_role_type_t role = self->p_service->p_periph->role;
+
+    if (role == UBLUEPY_ROLE_PERIPHERAL) {
+        if (self->props & UBLUEPY_PROP_NOTIFY) {
+            ble_drv_attr_s_notify(self->p_service->p_periph->conn_handle,
+                                  self->handle,
+                                  bufinfo.len,
+				  bufinfo.buf);
+        }
+    }
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(ubluepy_characteristic_notify_obj, 2, char_notify);
+
+/// \method getHandle()
+/// Read Characteristic Handle.
+///
+STATIC mp_obj_t char_get_handle(mp_obj_t self_in) {
+    ubluepy_characteristic_obj_t * self = MP_OBJ_TO_PTR(self_in);
+    return MP_OBJ_NEW_SMALL_INT(self->handle);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(ubluepy_characteristic_get_handle_obj, char_get_handle);
 
 /// \method properties()
 /// Read Characteristic value properties.
@@ -179,14 +214,15 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(ubluepy_characteristic_get_uuid_obj, char_uuid)
 STATIC const mp_rom_map_elem_t ubluepy_characteristic_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_read),                MP_ROM_PTR(&ubluepy_characteristic_read_obj) },
     { MP_ROM_QSTR(MP_QSTR_write),               MP_ROM_PTR(&ubluepy_characteristic_write_obj) },
+    { MP_ROM_QSTR(MP_QSTR_notify),              MP_ROM_PTR(&ubluepy_characteristic_notify_obj) },
 #if 0
     { MP_ROM_QSTR(MP_QSTR_supportsRead),        MP_ROM_PTR(&ubluepy_characteristic_supports_read_obj) },
     { MP_ROM_QSTR(MP_QSTR_propertiesToString),  MP_ROM_PTR(&ubluepy_characteristic_properties_to_str_obj) },
-    { MP_ROM_QSTR(MP_QSTR_getHandle),           MP_ROM_PTR(&ubluepy_characteristic_get_handle_obj) },
 
     // Properties
     { MP_ROM_QSTR(MP_QSTR_peripheral),          MP_ROM_PTR(&ubluepy_characteristic_get_peripheral_obj) },
 #endif
+    { MP_ROM_QSTR(MP_QSTR_getHandle),           MP_ROM_PTR(&ubluepy_characteristic_get_handle_obj) },
     { MP_ROM_QSTR(MP_QSTR_uuid),                MP_ROM_PTR(&ubluepy_characteristic_get_uuid_obj) },
     { MP_ROM_QSTR(MP_QSTR_properties),          MP_ROM_PTR(&ubluepy_characteristic_get_properties_obj) },
 
